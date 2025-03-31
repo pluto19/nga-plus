@@ -1,0 +1,51 @@
+name: Publish Chrome Extension
+
+on:
+  push:
+    tags:
+      - 'v*' # 匹配所有版本标签
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      # 验证版本号
+      - name: Check version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "::set-output name=version::$VERSION"
+          
+      # 更新 manifest.json 中的版本号
+      - name: Update manifest version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          jq ".version = \"$VERSION\"" manifest.json > manifest.temp.json
+          mv manifest.temp.json manifest.json
+          
+      # 打包扩展
+      - name: Package Extension
+        run: |
+          zip -r extension.zip . -x "*.git*" "*.github*"
+          
+      # 创建 Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: extension.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      # 发布到 Chrome Web Store
+      - name: Publish to Chrome Web Store
+        run: |
+          # 这里使用 Chrome Web Store API 发布更新
+          # 需要配置相应的环境变量和认证信息
+          echo "Publishing to Chrome Web Store..."
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
