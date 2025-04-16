@@ -118,5 +118,46 @@ window.addEventListener('load', () => {
     handleLinks();
 });
 
+// 检查当前URL是否为帖子列表页面
+function isThreadListPage() {
+    const url = new URL(window.location.href);
+    return url.pathname.includes('thread.php') && url.searchParams.has('fid');
+}
+
+// 获取当前页码
+function getCurrentPage() {
+    const url = new URL(window.location.href);
+    const page = url.searchParams.get('page');
+    return page ? parseInt(page) : 1;
+}
+
+// 处理键盘翻页
+function handleKeyboardNavigation(e) {
+    if (!isThreadListPage()) return;
+    
+    const currentPage = getCurrentPage();
+    let targetPage = currentPage;
+    
+    if (e.key === 'ArrowLeft' && currentPage > 1) {
+        targetPage = currentPage - 1;
+    } else if (e.key === 'ArrowRight') {
+        targetPage = currentPage + 1;
+    } else {
+        return;
+    }
+    
+    const url = new URL(window.location.href);
+    if (targetPage === 1) {
+        url.searchParams.delete('page');
+    } else {
+        url.searchParams.set('page', targetPage);
+    }
+    
+    window.location.href = url.toString();
+}
+
+// 添加键盘事件监听器
+document.addEventListener('keydown', handleKeyboardNavigation);
+
 // 立即执行一次
 handleLinks();
