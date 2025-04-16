@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "NGA-Plus",
+  "name": "NGA Plus",
   "version": "1.2",
   "description": "在新标签页打开NGA论坛的帖子链接，支持在版面列表页使用方向键翻页",
   "icons": {
